@@ -28,6 +28,9 @@ export default function RetroCalendar({ value, onChange, markedDates = new Set()
   const initial = value ? new Date(value) : today
   const [viewYear, setViewYear] = useState(initial.getFullYear())
   const [viewMonth, setViewMonth] = useState(initial.getMonth())
+  // Collapsed by default so the calendar doesn't dominate small screens.
+  // On desktop the CSS keeps the body visible regardless of this flag.
+  const [collapsed, setCollapsed] = useState(true)
 
   const firstDay = startOfMonth(viewYear, viewMonth)
   const startWeekday = firstDay.getDay()
@@ -56,60 +59,84 @@ export default function RetroCalendar({ value, onChange, markedDates = new Set()
     setViewYear(y)
   }
 
+  function toggleCollapsed() {
+    onSound?.()
+    setCollapsed((c) => !c)
+  }
+
+  const bodyId = 'retro-cal-body'
+
   return (
-    <div className="retro-cal">
+    <div className={`retro-cal ${collapsed ? 'retro-cal--collapsed' : ''}`}>
       <div className="retro-cal__head">
         <button type="button" className="retro-cal__nav" onClick={() => shiftMonth(-1)} aria-label="Previous month">
           ◀
         </button>
-        <div className="retro-cal__title">
-          {viewYear}-{pad(viewMonth + 1)}
-        </div>
+        <button
+          type="button"
+          className="retro-cal__title"
+          onClick={toggleCollapsed}
+          aria-expanded={!collapsed}
+          aria-controls={bodyId}
+          aria-label={collapsed ? 'Show calendar' : 'Hide calendar'}
+        >
+          <span className="retro-cal__title-month">
+            {viewYear}-{pad(viewMonth + 1)}
+          </span>
+          {selectedIso && (
+            <span className="retro-cal__title-pick" aria-hidden>
+              ♥ {selectedIso}
+            </span>
+          )}
+          <span className="retro-cal__chev" aria-hidden>{collapsed ? '▼' : '▲'}</span>
+        </button>
         <button type="button" className="retro-cal__nav" onClick={() => shiftMonth(1)} aria-label="Next month">
           ▶
         </button>
       </div>
 
-      <div className="retro-cal__row retro-cal__row--head">
-        {WEEK_DAYS.map((d, i) => (
-          <div key={i} className="retro-cal__dow">{d}</div>
-        ))}
-      </div>
+      <div id={bodyId} className="retro-cal__body">
+        <div className="retro-cal__row retro-cal__row--head">
+          {WEEK_DAYS.map((d, i) => (
+            <div key={i} className="retro-cal__dow">{d}</div>
+          ))}
+        </div>
 
-      <div className="retro-cal__grid">
-        {cells.map((day, idx) => {
-          if (day === null) {
-            return <div key={`e-${idx}`} className="retro-cal__cell retro-cal__cell--empty" />
-          }
-          const iso = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`
-          const isToday = iso === todayIso
-          const isSelected = iso === selectedIso
-          const hasEvent = markedDates.has(iso)
-          return (
-            <button
-              key={iso}
-              type="button"
-              className={[
-                'retro-cal__cell',
-                isToday ? 'retro-cal__cell--today' : '',
-                isSelected ? 'retro-cal__cell--selected' : '',
-                hasEvent ? 'retro-cal__cell--event' : '',
-              ].join(' ')}
-              onClick={() => {
-                onSound?.()
-                onChange?.(iso)
-              }}
-            >
-              <span className="retro-cal__num">{day}</span>
-              {hasEvent && <span className="retro-cal__heart" aria-hidden>♥</span>}
-            </button>
-          )
-        })}
-      </div>
+        <div className="retro-cal__grid">
+          {cells.map((day, idx) => {
+            if (day === null) {
+              return <div key={`e-${idx}`} className="retro-cal__cell retro-cal__cell--empty" />
+            }
+            const iso = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`
+            const isToday = iso === todayIso
+            const isSelected = iso === selectedIso
+            const hasEvent = markedDates.has(iso)
+            return (
+              <button
+                key={iso}
+                type="button"
+                className={[
+                  'retro-cal__cell',
+                  isToday ? 'retro-cal__cell--today' : '',
+                  isSelected ? 'retro-cal__cell--selected' : '',
+                  hasEvent ? 'retro-cal__cell--event' : '',
+                ].join(' ')}
+                onClick={() => {
+                  onSound?.()
+                  onChange?.(iso)
+                }}
+              >
+                <span className="retro-cal__num">{day}</span>
+                {hasEvent && <span className="retro-cal__heart" aria-hidden>♥</span>}
+              </button>
+            )
+          })}
+        </div>
 
-      <div className="retro-cal__foot">
-        <div className="retro-cal__selected">
-          {selectedIso ? `Picked: ${selectedIso}` : 'Pick a date'}
+        <div className="retro-cal__foot">
+          <div className="retro-cal__selected">
+            {selectedIso ? `Picked: ${selectedIso}` : 'Pick a date'}
+          </div>
         </div>
       </div>
     </div>

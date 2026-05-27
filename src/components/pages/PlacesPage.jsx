@@ -103,6 +103,8 @@ function MiniMap({ places, onOpen }) {
 /**
  * Fullscreen map lightbox. Click anywhere to drop a pin; the pin's title +
  * status come from a popup, exactly like before, but with much more room.
+ * The pink search icon opens a Mapbox-geocoding autocomplete that flies the
+ * map to a chosen place and pre-fills the pin form with its name.
  */
 function MapLightbox({ open, onClose, places, onAdd }) {
   const wrap = useRef(null)
@@ -110,6 +112,40 @@ function MapLightbox({ open, onClose, places, onAdd }) {
   const markersRef = useRef(new Map())
   const popupRef = useRef(null)
   const user = useAuth((s) => s.user)
+
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searching, setSearching] = useState(false)
+  const searchTimerRef = useRef(null)
+  const searchInputRef = useRef(null)
+
+  // Open a pin popup at the given location. Extracted so map clicks and
+  // search-result selections share the exact same flow.
+  function openPinPopup(lng, lat, suggestedTitle = '') {
+    const map = mapRef.current
+    if (!map) return
+    if (popupRef.current) popupRef.current.remove()
+    const node = document.createElement('div')
+    node.style.fontFamily = 'var(--font-typewriter)'
+    const popup = new mapboxgl.Popup({ closeButton: true, closeOnClick: false, offset: 10 })
+      .setLngLat([lng, lat])
+      .setDOMContent(node)
+      .addTo(map)
+    popupRef.current = popup
+    const root = createRoot(node)
+    root.render(
+      <PinPopup
+        lng={lng}
+        lat={lat}
+        defaultTitle={suggestedTitle}
+        onAdd={async (input) => {
+          await onAdd({ ...input, addedBy: user })
+        }}
+        onClose={() => popup.remove()}
+      />,
+    )
+  }
 
   useEffect(() => {
     if (!open || !wrap.current || mapRef.current || !MAPBOX_TOKEN) return
@@ -124,25 +160,7 @@ function MapLightbox({ open, onClose, places, onAdd }) {
     map.addControl(new mapboxgl.AttributionControl({ compact: true }))
 
     map.on('click', (e) => {
-      if (popupRef.current) popupRef.current.remove()
-      const node = document.createElement('div')
-      node.style.fontFamily = 'var(--font-typewriter)'
-      const popup = new mapboxgl.Popup({ closeButton: true, closeOnClick: false, offset: 10 })
-        .setLngLat(e.lngLat)
-        .setDOMContent(node)
-        .addTo(map)
-      popupRef.current = popup
-      const root = createRoot(node)
-      root.render(
-        <PinPopup
-          lng={e.lngLat.lng}
-          lat={e.lngLat.lat}
-          onAdd={async (input) => {
-            await onAdd({ ...input, addedBy: user })
-          }}
-          onClose={() => popup.remove()}
-        />,
-      )
+      openPinPopup(e.lngLat.lng, e.lngLat.lat)
     })
 
     mapRef.current = map
@@ -155,6 +173,74 @@ function MapLightbox({ open, onClose, places, onAdd }) {
       mapRef.current = null
     }
   }, [open, onAdd, user])
+
+  // Reset search state whenever the lightbox closes so it reopens fresh.
+  useEffect(() => {
+    if (!open) {
+      setSearchOpen(false)
+      setSearchQuery('')
+      setSearchResults([])
+    }
+  }, [open])
+
+  // Focus the search input as soon as it opens.
+  useEffect(() => {
+    if (searchOpen) {
+      const t = setTimeout(() => searchInputRef.current?.focus(), 30)
+      return () => clearTimeout(t)
+    }
+  }, [searchOpen])
+
+  // Debounced Mapbox forward-geocoding lookup. ≥2 chars to avoid noisy calls.
+  useEffect(() => {
+    if (!searchOpen) return
+    const q = searchQuery.trim()
+    if (q.length < 2) {
+      setSearchResults([])
+      setSearching(false)
+      return
+    }
+    if (!MAPBOX_TOKEN) {
+      console.warn('VITE_MAPBOX_TOKEN missing — place search disabled.')
+      return
+    }
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
+    setSearching(true)
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const url =
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json` +
+          `?access_token=${MAPBOX_TOKEN}&autocomplete=true&limit=5`
+        const res = await fetch(url)
+        const data = await res.json()
+        setSearchResults(Array.isArray(data?.features) ? data.features : [])
+      } catch (err) {
+        console.warn('Mapbox geocoding failed:', err)
+        setSearchResults([])
+      } finally {
+        setSearching(false)
+      }
+    }, 250)
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
+    }
+  }, [searchQuery, searchOpen])
+
+  function handlePickResult(feature) {
+    const map = mapRef.current
+    if (!map || !feature?.center) return
+    const [lng, lat] = feature.center
+    playSelect()
+    map.flyTo({
+      center: [lng, lat],
+      zoom: Math.max(map.getZoom(), 11),
+      essential: true,
+    })
+    openPinPopup(lng, lat, feature.text || '')
+    setSearchResults([])
+    setSearchQuery(feature.place_name || feature.text || '')
+    setSearchOpen(false)
+  }
 
   useEffect(() => {
     const map = mapRef.current
@@ -219,7 +305,88 @@ function MapLightbox({ open, onClose, places, onAdd }) {
                 Close
               </button>
             </div>
-            <div className="map-lightbox__body" ref={wrap} />
+            <div className="map-lightbox__body" ref={wrap}>
+              <div
+                className="map-search"
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  className={`map-search__btn ${searchOpen ? 'is-active' : ''}`}
+                  onClick={() => {
+                    playClick()
+                    setSearchOpen((v) => !v)
+                  }}
+                  aria-label={searchOpen ? 'Close search' : 'Search a place'}
+                  aria-expanded={searchOpen}
+                  title="Search a place to drop a pin"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
+                    aria-hidden
+                  >
+                    <circle cx="10" cy="10" r="6" />
+                    <line x1="21" y1="21" x2="15" y2="15" />
+                  </svg>
+                </button>
+                {searchOpen && (
+                  <div className="map-search__panel">
+                    <input
+                      ref={searchInputRef}
+                      className="map-search__input"
+                      placeholder="Search a place..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                          setSearchOpen(false)
+                        } else if (e.key === 'Enter' && searchResults.length > 0) {
+                          e.preventDefault()
+                          handlePickResult(searchResults[0])
+                        }
+                      }}
+                    />
+                    {(searching || searchResults.length > 0 || searchQuery.trim().length >= 2) && (
+                      <div className="map-search__results">
+                        {searching && (
+                          <div className="map-search__result-empty">Searching...</div>
+                        )}
+                        {!searching &&
+                          searchResults.map((feature) => (
+                            <button
+                              key={feature.id}
+                              type="button"
+                              className="map-search__result"
+                              onClick={() => handlePickResult(feature)}
+                            >
+                              <span className="map-search__result-title">
+                                {feature.text || 'Unnamed place'}
+                              </span>
+                              {feature.place_name && feature.place_name !== feature.text && (
+                                <span>{feature.place_name}</span>
+                              )}
+                            </button>
+                          ))}
+                        {!searching &&
+                          searchResults.length === 0 &&
+                          searchQuery.trim().length >= 2 && (
+                            <div className="map-search__result-empty">No matches.</div>
+                          )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       )}
@@ -227,8 +394,8 @@ function MapLightbox({ open, onClose, places, onAdd }) {
   )
 }
 
-function PinPopup({ lng, lat, onAdd, onClose }) {
-  const [title, setTitle] = useState('')
+function PinPopup({ lng, lat, defaultTitle = '', onAdd, onClose }) {
+  const [title, setTitle] = useState(defaultTitle)
   const [status, setStatus] = useState('want')
   return (
     <div style={{ padding: 6, minWidth: 220 }}>

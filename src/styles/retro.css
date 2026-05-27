@@ -563,6 +563,114 @@ textarea {
   flex: 1;
   min-height: 0;
   width: 100%;
+  position: relative;
+}
+
+/* ---------- Map search overlay (floats on top of the lightbox map) ---------- */
+.map-search {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+}
+.map-search__btn {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--pink-deep);
+  color: #fff;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+}
+.map-search__btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.map-search__btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.map-search__btn.is-active {
+  background: var(--ink);
+  color: var(--pink-cream);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.map-search__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 280px;
+  max-width: 100%;
+}
+.map-search__input {
+  font-family: var(--font-typewriter);
+  font-size: 18px;
+  padding: 8px 12px;
+  width: 100%;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  color: var(--ink);
+}
+.map-search__input:focus {
+  outline: 2px dashed var(--pink-deep);
+  outline-offset: 2px;
+}
+.map-search__results {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  max-height: 260px;
+  overflow-y: auto;
+}
+.map-search__result {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px dashed var(--paper-line);
+  cursor: pointer;
+  font-family: var(--font-typewriter);
+  font-size: 16px;
+  color: var(--ink);
+}
+.map-search__result:last-child {
+  border-bottom: 0;
+}
+.map-search__result:hover,
+.map-search__result:focus {
+  background: var(--pink-soft);
+  outline: none;
+}
+.map-search__result-title {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--pink-deep);
+  letter-spacing: 1px;
+}
+.map-search__result-empty {
+  padding: 10px;
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--ink);
+  opacity: 0.65;
+  letter-spacing: 1px;
+  text-align: center;
 }
 
 /* ---------- Toolbar inside pages ---------- */
@@ -673,6 +781,35 @@ textarea {
   font-size: 11px;
   letter-spacing: 1px;
   color: var(--pink-deep);
+  /* Title doubles as the collapse toggle. On desktop the body is always
+     visible (see media query below), so the button reads as static text. */
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  font-family: var(--font-pixel);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+.retro-cal__title-month {
+  white-space: nowrap;
+}
+.retro-cal__title-pick {
+  display: none;
+  font-size: 9px;
+  color: var(--ink);
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.retro-cal__chev {
+  display: none;
+  font-size: 9px;
+  color: var(--ink);
 }
 .retro-cal__nav {
   background: var(--pink-deep);
@@ -952,6 +1089,34 @@ textarea {
   }
 }
 
+/* On mobile-stacked layout, let users collapse the calendar so the
+   add-date form is reachable without a long scroll. */
+@media (max-width: 560px) {
+  .retro-cal__chev {
+    display: inline;
+  }
+  .retro-cal__title-pick {
+    display: inline-block;
+    max-width: 40%;
+  }
+  .retro-cal--collapsed .retro-cal__body {
+    display: none;
+  }
+  .retro-cal--collapsed .retro-cal__head {
+    border-bottom: none;
+    padding-bottom: 2px;
+  }
+  .retro-cal__title {
+    /* Make the tap target obvious on touch screens. */
+    min-height: 36px;
+    border: 2px dashed transparent;
+  }
+  .retro-cal__title:hover,
+  .retro-cal__title:focus-visible {
+    border-color: var(--paper-line);
+  }
+}
+
 /* ---------- Open book leather frame ---------- */
 .open-book-frame {
   padding: 12px;
@@ -1166,6 +1331,33 @@ textarea {
   .map-lightbox__title {
     font-size: 9px;
   }
+  .map-search {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    max-width: calc(100% - 16px);
+    gap: 6px;
+  }
+  .map-search__btn {
+    width: 44px;
+    height: 44px;
+  }
+  .map-search__panel {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+  }
+  .map-search__input {
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+  .map-search__results {
+    max-height: 45dvh;
+  }
+  .map-search__result {
+    padding: 10px;
+    min-height: 44px;
+  }
 
   /* Password modal */
   .modal {
@@ -1192,22 +1384,54 @@ textarea {
 
   /* Retro calendar: keep cells tappable (~40-46px each on a 360px column) */
   .retro-cal {
-    padding: 6px;
+    padding: 5px;
+  }
+  .retro-cal__head {
+    gap: 4px;
+    padding: 2px 0 6px;
   }
   .retro-cal__title {
     font-size: 10px;
+    gap: 4px;
+    padding: 4px 2px;
+  }
+  .retro-cal__title-pick {
+    /* The header now also carries the picked-date hint, so cap it tighter
+       and let it ellipsis before it can push the nav buttons off-screen. */
+    font-size: 8px;
+    max-width: 38%;
   }
   .retro-cal__nav {
     font-size: 11px;
-    padding: 6px 10px;
-    min-width: 36px;
+    padding: 4px 8px;
+    min-width: 32px;
     min-height: 32px;
+  }
+  .retro-cal__row,
+  .retro-cal__grid {
+    gap: 2px;
+  }
+  .retro-cal__row--head {
+    margin: 4px 0 3px;
+  }
+  .retro-cal__dow {
+    padding: 2px 0;
+    font-size: 8px;
   }
   .retro-cal__num {
     font-size: 8px;
+    top: 2px;
+    left: 3px;
   }
   .retro-cal__heart {
-    font-size: 12px;
+    font-size: 11px;
+    right: 2px;
+    bottom: 0;
+  }
+  /* The picked date is already shown in the header on mobile, so the
+     footer becomes redundant - drop it to reclaim vertical room. */
+  .retro-cal__foot {
+    display: none;
   }
   .retro-cal__today {
     font-size: 9px;
@@ -1237,5 +1461,58 @@ textarea {
     font-size: 8px;
     padding: 9px 6px;
     letter-spacing: 0;
+  }
+
+  /* iPhone SE-class widths (320-375px): squeeze the calendar header so the
+     ◀ | title | ▶ row stays on one line and cells stay tappable. */
+  .page-surface {
+    padding: 10px 8px;
+  }
+  .retro-cal {
+    padding: 4px;
+  }
+  .retro-cal__head {
+    gap: 2px;
+    padding: 2px 0 4px;
+  }
+  .retro-cal__title {
+    font-size: 9px;
+    gap: 2px;
+    padding: 4px 0;
+  }
+  .retro-cal__title-pick {
+    /* Chevron + the cells themselves show the pick; drop the hint to
+       guarantee the header fits on a 320px-wide screen. */
+    display: none;
+  }
+  .retro-cal__nav {
+    font-size: 10px;
+    padding: 4px 6px;
+    min-width: 28px;
+    min-height: 30px;
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+  .retro-cal__row,
+  .retro-cal__grid {
+    gap: 1px;
+  }
+  .retro-cal__dow {
+    font-size: 7px;
+    padding: 1px 0;
+  }
+  .retro-cal__cell {
+    border-width: 1px;
+  }
+  .retro-cal__num {
+    font-size: 7px;
+    top: 2px;
+    left: 2px;
+  }
+  .retro-cal__heart {
+    font-size: 10px;
+    right: 1px;
+  }
+  .retro-cal__cell--today {
+    outline-offset: -3px;
   }
 }
