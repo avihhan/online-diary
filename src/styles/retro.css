@@ -724,7 +724,8 @@ textarea {
   cursor: default;
 }
 .retro-cal__cell--today {
-  /* highlight removed -- today looks like any other day */
+  outline: 2px dashed var(--blue);
+  outline-offset: -4px;
 }
 .retro-cal__cell--selected {
   background: var(--pink-deep);
