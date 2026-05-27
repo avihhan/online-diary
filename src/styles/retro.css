@@ -863,6 +863,79 @@ textarea {
   accent-color: var(--pink-deep);
 }
 
+/* ---------- End cover page ---------- */
+.end-cover {
+  align-items: center;
+  text-align: center;
+  gap: clamp(6px, 1.2vh, 12px);
+}
+.end-cover__title {
+  font-family: var(--font-pixel);
+  font-size: clamp(16px, 3.2vh, 28px);
+  color: var(--pink-deep);
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.18);
+  letter-spacing: 2px;
+  margin-bottom: clamp(4px, 0.8vh, 10px);
+}
+.end-cover__frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: clamp(6px, 1vh, 12px);
+  max-width: min(360px, 78%);
+  min-height: 0;
+}
+.end-cover__portrait {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: clamp(160px, 38vh, 360px);
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.end-cover__signoff {
+  font-family: var(--font-script);
+  font-size: clamp(22px, 3.2vh, 30px);
+  color: var(--ink);
+  margin-top: clamp(6px, 1vh, 12px);
+  line-height: 1.1;
+}
+.end-cover__year {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--pink-deep);
+  opacity: 0.85;
+  margin-top: 2px;
+}
+.end-cover__pencils {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: clamp(4px, 0.8vh, 10px);
+}
+.end-cover__heart {
+  font-size: 18px;
+  color: var(--pink-deep);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.12);
+}
+@media (max-height: 620px) {
+  .end-cover__title {
+    font-size: 14px;
+  }
+  .end-cover__portrait {
+    max-height: 30vh;
+  }
+  .end-cover__signoff {
+    font-size: 20px;
+  }
+}
+
 /* ---------- DatesPage layout ---------- */
 .dates-grid {
   display: grid;

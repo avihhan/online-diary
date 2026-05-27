@@ -8,6 +8,7 @@ const ITEMS = [
   { id: 'bucket', num: '02', title: 'Date Ideas', subtitle: 'Our shared bucket list' },
   { id: 'dates', num: '03', title: 'Important Dates', subtitle: 'Anniversaries & milestones' },
   { id: 'thoughts', num: '04', title: 'Shared Thoughts', subtitle: 'Little notes to each other' },
+  { id: 'end', num: '05', title: 'Closing', subtitle: 'A little portrait of us' },
 ]
 
 export default function TableOfContents() {

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { api } from '../api/client'
 import { playFlip } from '../utils/sounds'
 
-const PAGES = ['toc', 'places', 'bucket', 'dates', 'thoughts']
+const PAGES = ['toc', 'places', 'bucket', 'dates', 'thoughts', 'end']
 
 export const useDiary = create((set, get) => ({
   pageIndex: 0,

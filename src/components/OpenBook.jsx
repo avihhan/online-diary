@@ -6,6 +6,7 @@ import PlacesPage from './pages/PlacesPage'
 import BucketListPage from './pages/BucketListPage'
 import ThoughtsPage from './pages/ThoughtsPage'
 import DatesPage from './pages/DatesPage'
+import EndCoverPage from './pages/EndCoverPage'
 
 const PAGE_COMPONENTS = {
   toc: TableOfContents,
@@ -13,6 +14,7 @@ const PAGE_COMPONENTS = {
   bucket: BucketListPage,
   dates: DatesPage,
   thoughts: ThoughtsPage,
+  end: EndCoverPage,
 }
 
 const variants = {
