@@ -5,11 +5,13 @@ import TableOfContents from './TableOfContents'
 import PlacesPage from './pages/PlacesPage'
 import BucketListPage from './pages/BucketListPage'
 import ThoughtsPage from './pages/ThoughtsPage'
+import DatesPage from './pages/DatesPage'
 
 const PAGE_COMPONENTS = {
   toc: TableOfContents,
   places: PlacesPage,
   bucket: BucketListPage,
+  dates: DatesPage,
   thoughts: ThoughtsPage,
 }
 

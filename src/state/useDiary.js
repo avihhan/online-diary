@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { api } from '../api/client'
+import { playFlip } from '../utils/sounds'
 
-const PAGES = ['toc', 'places', 'bucket', 'thoughts']
+const PAGES = ['toc', 'places', 'bucket', 'dates', 'thoughts']
 
 export const useDiary = create((set, get) => ({
   pageIndex: 0,
@@ -20,9 +21,14 @@ export const useDiary = create((set, get) => ({
   thoughtsLoaded: false,
   thoughtsLoading: false,
 
+  dates: [],
+  datesLoaded: false,
+  datesLoading: false,
+
   goTo(name) {
     const idx = typeof name === 'number' ? name : PAGES.indexOf(name)
     if (idx < 0 || idx === get().pageIndex) return
+    playFlip()
     set({
       pageIndex: idx,
       direction: idx > get().pageIndex ? 1 : -1,
@@ -140,6 +146,36 @@ export const useDiary = create((set, get) => ({
     }
   },
 
+  async loadDates() {
+    set({ datesLoading: true })
+    try {
+      const res = await api.get('/dates')
+      set({ dates: res.data.items || [], datesLoaded: true })
+    } catch (err) {
+      console.error('loadDates failed', err)
+    } finally {
+      set({ datesLoading: false })
+    }
+  },
+  async addDate({ title, date, notes, addedBy }) {
+    const res = await api.post('/dates', { title, date, notes, addedBy })
+    if (res.data?.ok && res.data.item) {
+      const next = [...get().dates, res.data.item].sort((a, b) =>
+        (a.date || '').localeCompare(b.date || ''),
+      )
+      set({ dates: next })
+    }
+    return res.data?.item
+  },
+  async deleteDate(id) {
+    set({ dates: get().dates.filter((d) => d.id !== id) })
+    try {
+      await api.delete('/dates', { params: { id } })
+    } catch (err) {
+      console.error('deleteDate failed', err)
+    }
+  },
+
   resetData() {
     set({
       places: [],
@@ -148,6 +184,8 @@ export const useDiary = create((set, get) => ({
       bucketLoaded: false,
       thoughts: [],
       thoughtsLoaded: false,
+      dates: [],
+      datesLoaded: false,
       pageIndex: 0,
     })
   },

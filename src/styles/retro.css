@@ -545,6 +545,157 @@ textarea {
   color: #fff;
 }
 
+/* ---------- Retro calendar ---------- */
+.retro-cal {
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 8px;
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--ink);
+  user-select: none;
+}
+.retro-cal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 2px 8px;
+  border-bottom: 2px dashed var(--paper-line);
+}
+.retro-cal__title {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--pink-deep);
+}
+.retro-cal__nav {
+  background: var(--pink-deep);
+  color: #fff;
+  border: 2px solid var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  padding: 4px 8px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.retro-cal__nav:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.retro-cal__row,
+.retro-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.retro-cal__row--head {
+  margin: 6px 0 4px;
+}
+.retro-cal__dow {
+  text-align: center;
+  padding: 4px 0;
+  font-size: 9px;
+  opacity: 0.75;
+}
+.retro-cal__cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.06s;
+}
+.retro-cal__cell:hover {
+  background: var(--pink-cream);
+}
+.retro-cal__cell--empty {
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+}
+.retro-cal__cell--today {
+  outline: 2px dashed var(--blue);
+  outline-offset: -4px;
+}
+.retro-cal__cell--selected {
+  background: var(--pink-deep);
+  color: #fff;
+}
+.retro-cal__cell--event::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 60%, var(--pink) 60%);
+  pointer-events: none;
+  opacity: 0.55;
+}
+.retro-cal__num {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+}
+.retro-cal__heart {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  font-size: 10px;
+  color: var(--pink-deep);
+  text-shadow: 0 0 1px #fff;
+}
+.retro-cal__cell--selected .retro-cal__heart {
+  color: #fff;
+}
+.retro-cal__foot {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 2px dashed var(--paper-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 9px;
+}
+.retro-cal__today {
+  background: var(--blue);
+  color: #fff;
+  border: 2px solid var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  padding: 5px 8px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
+  letter-spacing: 1px;
+}
+
+/* ---------- Music control HUD ---------- */
+.music-ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.music-ctl button {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  padding: 4px 6px;
+  letter-spacing: 1px;
+}
+.music-ctl button:hover {
+  background: var(--pink-soft);
+}
+.music-ctl input[type="range"] {
+  width: 70px;
+  accent-color: var(--pink-deep);
+}
+
 /* ---------- Tiny screens: keep usable ---------- */
 @media (max-width: 720px) {
   .page-surface {

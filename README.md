@@ -6,7 +6,10 @@ The closed leather book has a curved 3D title and a heart-shaped padlock. Click 
 
 1. **Our Map** — a Mapbox world map; click anywhere to drop a pin you've visited or want to visit.
 2. **Date Ideas** — a shared, checkable bucket list with each entry color-coded by who added it.
-3. **Shared Thoughts** — a timestamped feed where both of you can leave notes, color-coded by author.
+3. **Important Dates** — a retro pixel calendar to mark anniversaries, milestones, and reminders.
+4. **Shared Thoughts** — a timestamped feed where both of you can leave notes, color-coded by author.
+
+Chiptune sound effects fire on every click, page-flip, and unlock, and there's an optional background music track ("Dance of the Blessed Spirits" by Gluck — see Audio section below).
 
 Smooth CSS-3D page-flip animations connect everything together. The whole UI is wrapped in a retro CRT scanline effect with a floating pixel-heart background.
 
@@ -140,9 +143,50 @@ After deploy, visit your Vercel URL, click the heart lock, pick a user, and type
 
 ---
 
+## Audio
+
+### Background music (Gluck — "Dance of the Blessed Spirits")
+
+The diary tries to load `public/audio/blessed-spirits.mp3` and loop it quietly in the background. If the file isn't there, the music button in the HUD just shows `♪ ?` and stays disabled — nothing breaks.
+
+To enable music:
+1. Grab any public-domain recording of Gluck's *Dance of the Blessed Spirits* (Act II Andante from *Orfeo ed Euridice*). Good free sources:
+   - https://musopen.org/music/ (search "Dance of the Blessed Spirits")
+   - https://imslp.org/wiki/Orfeo_ed_Euridice_(Gluck%2C_Christoph_Willibald)
+2. Save it as **`blessed-spirits.mp3`** inside `public/audio/`
+3. Refresh the page — the `♪ Play` button in the top-right HUD activates. Use the slider to set volume; preferences persist across sessions.
+
+### Sound effects
+
+Built-in chiptune SFX (no files needed — synthesized in the browser via Web Audio):
+- soft blip on every button click
+- whoosh + paper-settle on every page-flip
+- 3-note arpeggio on successful unlock
+- low woody pop when the cover opens
+- sad descending tones on errors
+
+Toggle them with the `SFX On / Off` button in the same HUD widget.
+
 ## Notes
 
 - The diary uses a single shared password. Pick something only the two of you know.
 - The session token is a small signed HMAC blob valid for 7 days, stored in `sessionStorage`.
 - Data appears in your Google Sheet in real time — you can edit rows directly there too.
 - Mapbox is free up to 50,000 map loads per month.
+
+## Local dev (Windows)
+
+`vercel dev` doesn't reliably serve Python serverless functions on Windows + Python 3.14, so the project includes a tiny standalone Python dev server. Run two terminals:
+
+```powershell
+# Terminal 1 — Python API on port 3001
+pip install -r requirements.txt python-dotenv
+python dev_server.py
+
+# Terminal 2 — Vite frontend on port 5173
+npm run dev
+```
+
+Open http://localhost:5173. Vite proxies `/api/*` to the Python server. The `.env.local` file is loaded automatically by `dev_server.py`.
+
+In production on Vercel, none of this matters — the `api/*.py` files are auto-detected and run as serverless functions.

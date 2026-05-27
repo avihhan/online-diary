@@ -26,10 +26,12 @@ SCOPES = [
 PLACES_TAB = "places"
 BUCKET_TAB = "bucket_list"
 THOUGHTS_TAB = "thoughts"
+DATES_TAB = "dates"
 
 PLACES_HEADERS = ["id", "title", "lat", "lng", "status", "addedBy", "createdAt"]
 BUCKET_HEADERS = ["id", "text", "checked", "addedBy", "checkedBy", "createdAt"]
 THOUGHTS_HEADERS = ["id", "text", "author", "createdAt"]
+DATES_HEADERS = ["id", "title", "date", "notes", "addedBy", "createdAt"]
 
 _client_lock = threading.Lock()
 _client: Optional[gspread.Client] = None
@@ -91,6 +93,10 @@ def get_bucket_ws():
 
 def get_thoughts_ws():
     return get_worksheet(THOUGHTS_TAB, THOUGHTS_HEADERS)
+
+
+def get_dates_ws():
+    return get_worksheet(DATES_TAB, DATES_HEADERS)
 
 
 def rows_to_dicts(rows: list[list[str]], headers: list[str]) -> list[dict]:

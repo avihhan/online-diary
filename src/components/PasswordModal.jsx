@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { api } from '../api/client'
 import { useAuth, USERS } from '../state/useAuth'
+import { playClick, playUnlock, playError } from '../utils/sounds'
 
 const backdrop = {
   initial: { opacity: 0 },
@@ -34,13 +35,16 @@ export default function PasswordModal({ open, onClose, onUnlocked }) {
     try {
       const res = await api.post('/auth', { password })
       if (res.data?.ok) {
+        playUnlock()
         login({ token: res.data.token, user: who })
         setPassword('')
         onUnlocked?.()
       } else {
+        playError()
         setError('That is not our word. Try again.')
       }
     } catch (err) {
+      playError()
       const code = err?.response?.status
       if (code === 401) setError('That is not our word. Try again.')
       else setError('Could not reach the diary. Try again in a moment.')
@@ -76,7 +80,10 @@ export default function PasswordModal({ open, onClose, onUnlocked }) {
                   key={u.id}
                   type="button"
                   className={`who-btn ${u.tone} ${who === u.id ? 'selected' : ''}`}
-                  onClick={() => setWho(u.id)}
+                  onClick={() => {
+                    playClick()
+                    setWho(u.id)
+                  }}
                 >
                   {u.label}
                 </button>

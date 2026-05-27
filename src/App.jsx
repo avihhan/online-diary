@@ -5,7 +5,9 @@ import PasswordModal from './components/PasswordModal'
 import OpenBook from './components/OpenBook'
 import NavArrows from './components/NavArrows'
 import Hud from './components/Hud'
+import BackgroundMusic from './components/BackgroundMusic'
 import { useAuth } from './state/useAuth'
+import { playClick, playOpen } from './utils/sounds'
 
 export default function App() {
   const isUnlocked = useAuth((s) => s.isUnlocked)
@@ -19,6 +21,7 @@ export default function App() {
   useEffect(() => {
     if (isUnlocked) {
       setOpened(true)
+      playOpen()
       const t1 = setTimeout(() => setFaded(true), 900)
       return () => clearTimeout(t1)
     } else {
@@ -34,7 +37,10 @@ export default function App() {
       <Book
         opened={opened}
         faded={faded}
-        onLockClick={() => setModalOpen(true)}
+        onLockClick={() => {
+          playClick()
+          setModalOpen(true)
+        }}
       />
 
       <OpenBook visible={isUnlocked && faded} />
@@ -48,9 +54,14 @@ export default function App() {
 
       <PasswordModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          playClick()
+          setModalOpen(false)
+        }}
         onUnlocked={() => setModalOpen(false)}
       />
+
+      <BackgroundMusic />
 
       <div className="scanlines" />
     </>

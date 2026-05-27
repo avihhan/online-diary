@@ -1,11 +1,13 @@
 import React from 'react'
 import { useDiary } from '../state/useDiary'
 import { useAuth, USERS } from '../state/useAuth'
+import { playClick } from '../utils/sounds'
 
 const ITEMS = [
   { id: 'places', num: '01', title: 'Our Map', subtitle: 'Places we love & dream of' },
   { id: 'bucket', num: '02', title: 'Date Ideas', subtitle: 'Our shared bucket list' },
-  { id: 'thoughts', num: '03', title: 'Shared Thoughts', subtitle: 'Little notes to each other' },
+  { id: 'dates', num: '03', title: 'Important Dates', subtitle: 'Anniversaries & milestones' },
+  { id: 'thoughts', num: '04', title: 'Shared Thoughts', subtitle: 'Little notes to each other' },
 ]
 
 export default function TableOfContents() {
@@ -30,7 +32,14 @@ export default function TableOfContents() {
       <h2>Contents</h2>
       <div className="toc">
         {ITEMS.map((it) => (
-          <button key={it.id} className="toc-item" onClick={() => goTo(it.id)}>
+          <button
+            key={it.id}
+            className="toc-item"
+            onClick={() => {
+              playClick()
+              goTo(it.id)
+            }}
+          >
             <span className="num">{it.num}</span>
             <div style={{ textAlign: 'left' }}>
               <div>{it.title}</div>
