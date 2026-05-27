@@ -45,15 +45,29 @@ export default function BucketListPage() {
         Things we wanna do together &lt;3
       </div>
 
-      <form onSubmit={handleAdd} style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+      <form
+        onSubmit={handleAdd}
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+          marginBottom: 14,
+        }}
+      >
         <input
           className="retro-input"
           placeholder="A new date idea..."
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           maxLength={200}
+          style={{ flex: '1 1 180px', minWidth: 0 }}
         />
-        <button type="submit" className={`retro-btn ${user === 'avi' ? 'blue' : ''}`} disabled={!draft.trim()}>
+        <button
+          type="submit"
+          className={`retro-btn ${user === 'avi' ? 'blue' : ''}`}
+          disabled={!draft.trim()}
+          style={{ flex: '0 0 auto' }}
+        >
           Add
         </button>
       </form>

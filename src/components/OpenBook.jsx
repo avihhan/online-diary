@@ -62,14 +62,14 @@ export default function OpenBook({ visible }) {
     >
       {/* Open-book frame (leather edge around pages) */}
       <div
+        className="open-book-frame"
         style={{
           position: 'relative',
-          width: 'min(640px, 94vw)',
-          height: 'min(820px, calc(100dvh - 150px))',
-          minHeight: 360,
+          width: 'min(640px, 96vw)',
+          height: 'min(820px, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 140px))',
+          minHeight: 320,
           background:
             'linear-gradient(135deg, #6b3a1d 0%, #4a2410 60%, #3f2010 100%)',
-          padding: 12,
           borderRadius: 8,
           boxShadow:
             '0 30px 60px rgba(60, 10, 40, 0.45), inset 0 0 30px rgba(0,0,0,0.4)',

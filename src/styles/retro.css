@@ -604,7 +604,7 @@ textarea {
 /* ---------- Nav arrows ---------- */
 .nav-arrows {
   position: fixed;
-  bottom: 16px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -619,7 +619,7 @@ textarea {
 /* ---------- Top HUD ---------- */
 .hud {
   position: fixed;
-  top: 14px;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
   left: 14px;
   z-index: 9100;
   display: flex;
@@ -781,13 +781,14 @@ textarea {
 /* ---------- Music control HUD ---------- */
 .music-ctl--hud {
   position: fixed;
-  top: 14px;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
   right: 14px;
   z-index: 9100;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 6px;
+  max-width: calc(100vw - 24px);
 }
 .music-ctl__toggle {
   background: var(--pink-deep);
@@ -810,6 +811,7 @@ textarea {
   box-shadow: 4px 4px 0 var(--ink);
   padding: 10px;
   min-width: 220px;
+  max-width: calc(100vw - 24px);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -950,6 +952,11 @@ textarea {
   }
 }
 
+/* ---------- Open book leather frame ---------- */
+.open-book-frame {
+  padding: 12px;
+}
+
 /* ---------- Tiny screens: keep usable ---------- */
 @media (max-width: 720px) {
   .nav-arrows .retro-btn {
@@ -957,7 +964,7 @@ textarea {
     padding: 8px 12px;
   }
   .hud {
-    top: 8px;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
     left: 8px;
     padding: 4px 6px;
   }
@@ -966,19 +973,19 @@ textarea {
 /* Smaller laptop heights -- shrink chrome */
 @media (max-height: 760px) {
   .nav-arrows {
-    bottom: 8px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
   }
   .nav-arrows .retro-btn {
     font-size: 10px;
     padding: 8px 12px;
   }
   .hud {
-    top: 8px;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
     left: 8px;
     padding: 4px 8px;
   }
   .music-ctl--hud {
-    top: 8px;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
     right: 8px;
   }
 }
@@ -994,5 +1001,241 @@ textarea {
   .page-surface h2 {
     font-size: 8px;
     margin: 4px 0;
+  }
+}
+
+/* ---------- Phone breakpoint (portrait, ~360-480px wide) ---------- */
+@media (max-width: 480px) {
+  /* Hide ornamental elements that crowd small pages */
+  .page-surface .corner-ribbon,
+  .page-surface .bookmark {
+    display: none;
+  }
+  .page-surface {
+    padding: 10px 12px;
+  }
+  .page-surface h1 {
+    font-size: 11px;
+  }
+
+  /* Open book leather frame: thinner padding, taller usable area */
+  .open-book-frame {
+    padding: 6px;
+  }
+
+  /* Top-left user HUD */
+  .hud {
+    top: calc(env(safe-area-inset-top, 0px) + 6px);
+    left: 6px;
+    gap: 6px;
+    padding: 4px 6px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .hud .who {
+    font-size: 8px;
+  }
+  .hud .logout {
+    font-size: 8px;
+    padding: 6px 8px;
+    border-width: 2px;
+    min-height: 30px;
+  }
+
+  /* Top-right music HUD: compact toggle + width-capped panel */
+  .music-ctl--hud {
+    top: calc(env(safe-area-inset-top, 0px) + 6px);
+    right: 6px;
+    gap: 4px;
+    max-width: calc(100vw - 12px);
+  }
+  .music-ctl__toggle {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .music-ctl__panel {
+    min-width: 0;
+    width: min(220px, calc(100vw - 16px));
+    padding: 8px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .music-ctl__row button {
+    font-size: 11px;
+    padding: 8px 6px;
+    min-height: 36px;
+  }
+  .music-ctl__title {
+    font-size: 7px;
+  }
+
+  /* Bottom nav arrows: respect safe-area, fit 3 buttons on 360px */
+  .nav-arrows {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    gap: 6px;
+    width: calc(100vw - 12px);
+    justify-content: center;
+  }
+  .nav-arrows .retro-btn {
+    font-size: 9px;
+    padding: 10px 8px;
+    border-width: 2px;
+    box-shadow: 3px 3px 0 var(--ink);
+    min-height: 40px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Table of contents: shrink tiles so all 5 fit */
+  .toc {
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .toc-item {
+    padding: 10px;
+    font-size: 10px;
+    gap: 10px;
+    box-shadow: 3px 3px 0 var(--ink);
+    min-height: 44px;
+  }
+  .toc-item .num {
+    font-size: 14px;
+  }
+
+  /* Lists: smaller text but tappable delete buttons */
+  .list-item {
+    font-size: 16px;
+    padding: 8px 2px;
+    gap: 8px;
+  }
+  .list-item .meta {
+    font-size: 7px;
+  }
+  .list-item .del {
+    font-size: 11px;
+    padding: 8px 10px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .retro-check {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Thoughts page */
+  .thought-card .body {
+    font-size: 18px;
+  }
+  .thought-textarea {
+    font-size: 18px;
+    min-height: 80px;
+  }
+
+  /* Inputs sized for thumbs */
+  .retro-input {
+    font-size: 16px;
+    padding: 10px 12px;
+    min-height: 44px;
+  }
+  .retro-btn {
+    min-height: 40px;
+  }
+
+  /* Mini map preview */
+  .mini-map {
+    height: clamp(110px, 18vh, 160px);
+  }
+
+  /* Map lightbox: take over the screen on phones */
+  .modal-backdrop {
+    padding: 8px;
+  }
+  .map-lightbox {
+    width: 100%;
+    height: 100%;
+    max-height: calc(100dvh - 16px);
+    box-shadow: 4px 4px 0 var(--ink);
+    border-width: 3px;
+  }
+  .map-lightbox__head {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .map-lightbox__title {
+    font-size: 9px;
+  }
+
+  /* Password modal */
+  .modal {
+    padding: 18px;
+    border-width: 3px;
+    box-shadow: 4px 4px 0 var(--ink);
+    max-height: calc(100dvh - 16px);
+    overflow-y: auto;
+  }
+  .modal h2 {
+    font-size: 10px;
+    margin-bottom: 12px;
+  }
+  .modal .row {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .modal .who-btn {
+    padding: 12px 8px;
+    font-size: 10px;
+    min-height: 44px;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  /* Retro calendar: keep cells tappable (~40-46px each on a 360px column) */
+  .retro-cal {
+    padding: 6px;
+  }
+  .retro-cal__title {
+    font-size: 10px;
+  }
+  .retro-cal__nav {
+    font-size: 11px;
+    padding: 6px 10px;
+    min-width: 36px;
+    min-height: 32px;
+  }
+  .retro-cal__num {
+    font-size: 8px;
+  }
+  .retro-cal__heart {
+    font-size: 12px;
+  }
+  .retro-cal__today {
+    font-size: 9px;
+    padding: 6px 10px;
+    min-height: 32px;
+  }
+
+  /* End cover: keep portrait + back button visible */
+  .end-cover__title {
+    font-size: 14px;
+  }
+  .end-cover__frame {
+    max-width: 86%;
+    padding: 8px;
+  }
+  .end-cover__portrait {
+    max-height: 26vh;
+  }
+  .end-cover__signoff {
+    font-size: 18px;
+  }
+}
+
+/* Very narrow phones (e.g. 360px) need extra-tight nav arrows */
+@media (max-width: 380px) {
+  .nav-arrows .retro-btn {
+    font-size: 8px;
+    padding: 9px 6px;
+    letter-spacing: 0;
   }
 }
