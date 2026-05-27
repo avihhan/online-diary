@@ -29,8 +29,11 @@ function audioManifestPlugin() {
         files = []
       }
       files.sort((a, b) => a.localeCompare(b))
+      // Use encodeURI (not encodeURIComponent): leaves commas, apostrophes,
+      // parentheses untouched so Vite's static-file middleware can still match
+      // the on-disk filename. Only escapes spaces and truly URL-unsafe chars.
       const tracks = files.map((f) => ({
-        src: '/audio/' + f.split('/').map(encodeURIComponent).join('/'),
+        src: '/audio/' + encodeURI(f),
         name: f.replace(/\.[^.]+$/, ''),
         file: f,
       }))

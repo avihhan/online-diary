@@ -1,10 +1,6 @@
 import React, { useMemo, useState } from 'react'
 
 const WEEK_DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-]
 
 function pad(n) {
   return String(n).padStart(2, '0')
@@ -60,13 +56,6 @@ export default function RetroCalendar({ value, onChange, markedDates = new Set()
     setViewYear(y)
   }
 
-  function jumpToToday() {
-    onSound?.()
-    setViewMonth(today.getMonth())
-    setViewYear(today.getFullYear())
-    onChange?.(todayIso)
-  }
-
   return (
     <div className="retro-cal">
       <div className="retro-cal__head">
@@ -74,7 +63,7 @@ export default function RetroCalendar({ value, onChange, markedDates = new Set()
           ◀
         </button>
         <div className="retro-cal__title">
-          {MONTHS[viewMonth]} {viewYear}
+          {viewYear}-{pad(viewMonth + 1)}
         </div>
         <button type="button" className="retro-cal__nav" onClick={() => shiftMonth(1)} aria-label="Next month">
           ▶
@@ -119,9 +108,6 @@ export default function RetroCalendar({ value, onChange, markedDates = new Set()
       </div>
 
       <div className="retro-cal__foot">
-        <button type="button" className="retro-cal__today" onClick={jumpToToday}>
-          ★ Today
-        </button>
         <div className="retro-cal__selected">
           {selectedIso ? `Picked: ${selectedIso}` : 'Pick a date'}
         </div>
