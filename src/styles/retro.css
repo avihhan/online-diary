@@ -179,13 +179,33 @@ textarea {
   background-size: cover;
   color: var(--ink);
   padding: clamp(14px, 2.2vh, 28px) clamp(16px, 2.4vw, 32px);
+  /* Keep room at the bottom so the last list item never sits flush against
+     the leather border when the page scrolls. */
+  padding-bottom: clamp(18px, 2.4vh, 32px);
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;
+  /* Allow the whole page to scroll vertically when its content can't fit
+     the open-book frame (e.g. on shorter laptop viewports). Horizontal
+     overflow is still clipped to avoid sideways scrollbars from minor
+     spill. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   border-radius: 4px;
   box-shadow: inset 0 0 40px rgba(120, 60, 90, 0.18);
   min-height: 0;
+}
+.page-surface::-webkit-scrollbar {
+  width: 10px;
+}
+.page-surface::-webkit-scrollbar-track {
+  background: var(--pink-cream);
+  border: 2px solid var(--ink);
+}
+.page-surface::-webkit-scrollbar-thumb {
+  background: var(--pink-deep);
+  border: 2px solid var(--ink);
 }
 .page-surface h1 {
   font-family: var(--font-pixel);
@@ -229,20 +249,10 @@ textarea {
 /* ---------- Lists ---------- */
 .list {
   list-style: none;
-  overflow-y: auto;
-  flex: 1;
+  /* The parent .page-surface now scrolls, so the list itself just grows
+     to its natural height. This guarantees no list item is hidden behind
+     a collapsed-flex region on tight viewports. */
   padding-right: 4px;
-}
-.list::-webkit-scrollbar {
-  width: 10px;
-}
-.list::-webkit-scrollbar-track {
-  background: var(--pink-cream);
-  border: 2px solid var(--ink);
-}
-.list::-webkit-scrollbar-thumb {
-  background: var(--pink-deep);
-  border: 2px solid var(--ink);
 }
 .list-item {
   display: flex;

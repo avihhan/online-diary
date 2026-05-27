@@ -60,13 +60,19 @@ export default function OpenBook({ visible }) {
         perspective: '2200px',
       }}
     >
-      {/* Open-book frame (leather edge around pages) */}
+      {/* Open-book frame (leather edge around pages).
+          Vertical sizing keeps a fixed ~120px reserve for the top HUD and
+          bottom nav arrows (their fixed sizes + safe areas), so on shorter
+          laptop viewports the whole book still fits without ever being
+          clipped above/below by the chrome. The page-surface inside scrolls
+          when its content can't fit. */}
       <div
         className="open-book-frame"
         style={{
           position: 'relative',
           width: 'min(640px, 96vw)',
-          height: 'min(820px, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 140px))',
+          height:
+            'min(820px, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 120px))',
           minHeight: 320,
           background:
             'linear-gradient(135deg, #6b3a1d 0%, #4a2410 60%, #3f2010 100%)',
