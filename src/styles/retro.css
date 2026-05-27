@@ -1,0 +1,555 @@
+:root {
+  --pink-deep: #ff6fb0;
+  --pink: #ff8fc4;
+  --pink-soft: #ffc4dc;
+  --pink-bg: #ffd6e7;
+  --pink-cream: #ffe5ee;
+  --blue: #4a90e2;
+  --blue-deep: #2c6fc1;
+  --ink: #2b1a26;
+  --paper: #fff8ef;
+  --paper-line: #e9c9d6;
+  --leather: #6b3a1d;
+  --leather-deep: #3f2010;
+  --gold: #d9a441;
+  --shadow: rgba(57, 18, 42, 0.35);
+  --font-pixel: 'Press Start 2P', system-ui, sans-serif;
+  --font-typewriter: 'VT323', 'Courier New', monospace;
+  --font-script: 'Caveat', cursive;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--pink-bg);
+  color: var(--ink);
+  font-family: var(--font-typewriter);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  position: relative;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input,
+textarea {
+  font-family: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+/* ---------- Retro button ---------- */
+.retro-btn {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  text-transform: uppercase;
+  background: var(--pink-deep);
+  color: #fff;
+  padding: 12px 18px;
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  letter-spacing: 1px;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.retro-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+.retro-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.retro-btn.blue {
+  background: var(--blue);
+}
+.retro-btn.ghost {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ---------- Inputs (retro) ---------- */
+.retro-input {
+  font-family: var(--font-typewriter);
+  font-size: 20px;
+  padding: 8px 12px;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+.retro-input:focus {
+  outline: 2px dashed var(--pink-deep);
+  outline-offset: 2px;
+}
+
+/* ---------- Scanlines overlay ---------- */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.06) 0px,
+    rgba(0, 0, 0, 0.06) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  z-index: 9000;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+/* ---------- Pink hearts background ---------- */
+.hearts-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-color: var(--pink-bg);
+  background-image: radial-gradient(
+      circle at 20% 30%,
+      rgba(255, 143, 196, 0.35) 0%,
+      transparent 50%
+    ),
+    radial-gradient(circle at 80% 70%, rgba(255, 196, 220, 0.5) 0%, transparent 55%);
+  overflow: hidden;
+}
+.hearts-bg__tile {
+  position: absolute;
+  inset: 0;
+  background-image: url("/textures/pixel-heart.svg");
+  background-repeat: repeat;
+  background-size: 64px 64px;
+  opacity: 0.15;
+}
+.heart-float {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background-image: url("/textures/pixel-heart.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: floatHeart linear infinite;
+  filter: drop-shadow(0 4px 0 rgba(196, 82, 134, 0.4));
+  pointer-events: none;
+}
+@keyframes floatHeart {
+  0% {
+    transform: translateY(110vh) rotate(-8deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-20vh) rotate(8deg);
+    opacity: 0;
+  }
+}
+
+/* ---------- Page surface (HTML rendered into 3D) ---------- */
+.page-surface {
+  width: 560px;
+  height: 760px;
+  background: var(--paper);
+  background-image: url("/textures/paper.svg");
+  background-size: cover;
+  color: var(--ink);
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: inset 0 0 40px rgba(120, 60, 90, 0.18);
+}
+.page-surface h1 {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  color: var(--pink-deep);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.15);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.page-surface h2 {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--ink);
+  letter-spacing: 1px;
+  margin: 10px 0 8px;
+}
+.page-surface .corner-ribbon {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--pink-deep);
+  letter-spacing: 1px;
+}
+.page-surface .bookmark {
+  position: absolute;
+  top: 0;
+  right: 38px;
+  width: 28px;
+  height: 60px;
+  background: var(--pink-deep);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+  cursor: pointer;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.2);
+}
+.page-surface .bookmark:hover {
+  background: var(--blue);
+}
+
+/* ---------- Lists ---------- */
+.list {
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+.list::-webkit-scrollbar {
+  width: 10px;
+}
+.list::-webkit-scrollbar-track {
+  background: var(--pink-cream);
+  border: 2px solid var(--ink);
+}
+.list::-webkit-scrollbar-thumb {
+  background: var(--pink-deep);
+  border: 2px solid var(--ink);
+}
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 2px dashed var(--paper-line);
+  font-size: 20px;
+}
+.list-item.done .text {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.list-item .text {
+  flex: 1;
+  word-break: break-word;
+}
+.list-item .meta {
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+.list-item .del {
+  color: var(--pink-deep);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  background: transparent;
+  border: 2px solid transparent;
+  padding: 4px 6px;
+}
+.list-item .del:hover {
+  border-color: var(--pink-deep);
+}
+
+/* ---------- Pencil indicator ---------- */
+.pencil {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.pencil::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-image: url("/textures/pencil.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.pencil.pink::before {
+  filter: hue-rotate(0deg);
+}
+.pencil.blue::before {
+  filter: hue-rotate(190deg) saturate(1.4);
+}
+.pencil.pink {
+  color: var(--pink-deep);
+}
+.pencil.blue {
+  color: var(--blue-deep);
+}
+
+/* ---------- Checkboxes (retro) ---------- */
+.retro-check {
+  width: 22px;
+  height: 22px;
+  appearance: none;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  position: relative;
+  cursor: pointer;
+  flex: none;
+}
+.retro-check:checked {
+  background: var(--pink-deep);
+}
+.retro-check:checked::after {
+  content: "x";
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  color: var(--paper);
+  position: absolute;
+  left: 4px;
+  top: 1px;
+}
+
+/* ---------- Password modal ---------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 10, 30, 0.55);
+  z-index: 9500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+  padding: 28px;
+  max-width: 420px;
+  width: 100%;
+  position: relative;
+}
+.modal h2 {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  color: var(--ink);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+.modal .row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.modal .who-btn {
+  flex: 1;
+  padding: 14px;
+  border: 3px solid var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  background: var(--paper);
+  color: var(--ink);
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.modal .who-btn.selected.pink {
+  background: var(--pink-deep);
+  color: #fff;
+}
+.modal .who-btn.selected.blue {
+  background: var(--blue);
+  color: #fff;
+}
+.modal .err {
+  color: #b32d57;
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  margin-top: 6px;
+}
+
+/* ---------- TOC ---------- */
+.toc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 24px;
+}
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 3px solid var(--ink);
+  background: var(--pink-cream);
+  box-shadow: 4px 4px 0 var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+.toc-item:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+  background: var(--pink-soft);
+}
+.toc-item .num {
+  font-size: 18px;
+  color: var(--pink-deep);
+}
+
+/* ---------- Thoughts ---------- */
+.thought-card {
+  background: var(--pink-cream);
+  border: 2px solid var(--ink);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.thought-card .head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.thought-card .body {
+  font-size: 22px;
+  white-space: pre-wrap;
+}
+.thought-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px 12px;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  font-family: var(--font-typewriter);
+  font-size: 22px;
+  resize: vertical;
+}
+
+/* ---------- Map ---------- */
+.map-wrap {
+  width: 100%;
+  flex: 1;
+  border: 3px solid var(--ink);
+  position: relative;
+  overflow: hidden;
+  filter: hue-rotate(-10deg) saturate(1.05);
+}
+.map-wrap .mapboxgl-canvas {
+  outline: none;
+}
+
+/* ---------- Toolbar inside pages ---------- */
+.page-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.page-toolbar .seg {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  padding: 6px 10px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  letter-spacing: 1px;
+}
+.page-toolbar .seg.active {
+  background: var(--pink-deep);
+  color: #fff;
+}
+
+/* ---------- Loading ---------- */
+.loading {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--pink-deep);
+  padding: 8px;
+  letter-spacing: 1px;
+}
+.empty {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--ink);
+  opacity: 0.6;
+  padding: 10px;
+  text-align: center;
+}
+
+/* ---------- Nav arrows ---------- */
+.nav-arrows {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 9100;
+}
+.nav-arrows .retro-btn {
+  font-size: 12px;
+  padding: 10px 16px;
+}
+
+/* ---------- Top HUD ---------- */
+.hud {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 9100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 245, 250, 0.85);
+  border: 3px solid var(--ink);
+  padding: 6px 10px;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.hud .who {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.hud .logout {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  background: transparent;
+  border: 2px solid var(--ink);
+  padding: 4px 6px;
+  letter-spacing: 1px;
+}
+.hud .logout:hover {
+  background: var(--pink-deep);
+  color: #fff;
+}
+
+/* ---------- Tiny screens: keep usable ---------- */
+@media (max-width: 720px) {
+  .page-surface {
+    width: 92vw;
+    height: 78vh;
+    padding: 20px;
+  }
+}
