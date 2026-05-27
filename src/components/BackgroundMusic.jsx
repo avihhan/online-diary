@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { tracks as discoveredTracks } from 'virtual:audio-tracks'
 import { setMuted as setSfxMuted, isMuted as isSfxMuted, playClick } from '../utils/sounds'
 
-const MUSIC_SRC = '/audio/blessed-spirits.mp3'
-const STORAGE = 'diary-music-v1'
+const STORAGE = 'diary-music-v2'
 
 function readPrefs() {
   try {
@@ -22,50 +22,55 @@ function writePrefs(prefs) {
   }
 }
 
+function shortName(name) {
+  if (!name) return ''
+  return name.length > 32 ? name.slice(0, 29) + '...' : name
+}
+
 /**
- * Background-music controller. Loops public/audio/blessed-spirits.mp3 quietly
- * after the first user interaction (browsers block autoplay before that).
- *
- * A small HUD widget lets the listener pause, resume, and adjust volume; the
- * same widget also toggles UI sound effects.
+ * Background-music player. Auto-discovers every audio file in `public/audio/`
+ * via the Vite `virtual:audio-tracks` module and plays them as a looping
+ * playlist (advances to the next track when one ends, wraps around at the end).
  */
 export default function BackgroundMusic() {
   const audioRef = useRef(null)
   const stored = readPrefs() || {}
+  const tracks = discoveredTracks || []
+  const hasTracks = tracks.length > 0
+
+  const [trackIdx, setTrackIdx] = useState(() => {
+    const i = Number.isInteger(stored.trackIdx) ? stored.trackIdx : 0
+    return Math.min(Math.max(i, 0), Math.max(0, tracks.length - 1))
+  })
   const [playing, setPlaying] = useState(stored.playing ?? true)
   const [volume, setVolume] = useState(stored.volume ?? 0.35)
+  const [shuffle, setShuffle] = useState(stored.shuffle ?? false)
   const [sfxMuted, setSfxLocal] = useState(isSfxMuted())
-  const [missing, setMissing] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
-  // Persist
+  const current = hasTracks ? tracks[trackIdx] : null
+
   useEffect(() => {
-    writePrefs({ playing, volume })
-  }, [playing, volume])
+    writePrefs({ trackIdx, playing, volume, shuffle })
+  }, [trackIdx, playing, volume, shuffle])
 
-  // Apply volume to <audio>
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume
   }, [volume])
 
-  // Play/pause control
   useEffect(() => {
     const el = audioRef.current
-    if (!el) return
+    if (!el || !current) return
     if (playing) {
       const p = el.play()
-      if (p && typeof p.catch === 'function') {
-        p.catch(() => {
-          // Autoplay blocked; will retry on first interaction below.
-        })
-      }
+      if (p && typeof p.catch === 'function') p.catch(() => {})
     } else {
       el.pause()
     }
-  }, [playing])
+  }, [playing, current])
 
-  // Retry play after first user interaction (autoplay policy)
   useEffect(() => {
-    if (!playing) return
+    if (!playing || !current) return
     const el = audioRef.current
     if (!el) return
     const tryPlay = () => {
@@ -75,67 +80,119 @@ export default function BackgroundMusic() {
     const evts = ['click', 'keydown', 'pointerdown', 'touchstart']
     evts.forEach((e) => window.addEventListener(e, tryPlay, { once: true }))
     return () => evts.forEach((e) => window.removeEventListener(e, tryPlay))
-  }, [playing])
+  }, [playing, current])
 
-  // Check whether file exists (helpful UX if user hasn't dropped the MP3 in)
-  useEffect(() => {
-    let cancelled = false
-    fetch(MUSIC_SRC, { method: 'HEAD' })
-      .then((res) => {
-        if (!cancelled && !res.ok) setMissing(true)
-      })
-      .catch(() => {
-        if (!cancelled) setMissing(true)
-      })
-    return () => {
-      cancelled = true
+  function nextIdx(curr) {
+    if (tracks.length <= 1) return 0
+    if (shuffle) {
+      let n = curr
+      while (n === curr) n = Math.floor(Math.random() * tracks.length)
+      return n
     }
-  }, [])
+    return (curr + 1) % tracks.length
+  }
 
-  function toggle() {
+  function prevIdx(curr) {
+    if (tracks.length <= 1) return 0
+    if (shuffle) {
+      let n = curr
+      while (n === curr) n = Math.floor(Math.random() * tracks.length)
+      return n
+    }
+    return (curr - 1 + tracks.length) % tracks.length
+  }
+
+  function handleEnded() {
+    setTrackIdx((i) => nextIdx(i))
+  }
+
+  function togglePlay() {
     playClick()
     setPlaying((p) => !p)
   }
-
+  function next() {
+    playClick()
+    setTrackIdx((i) => nextIdx(i))
+    setPlaying(true)
+  }
+  function prev() {
+    playClick()
+    setTrackIdx((i) => prevIdx(i))
+    setPlaying(true)
+  }
+  function toggleShuffle() {
+    playClick()
+    setShuffle((s) => !s)
+  }
   function toggleSfx() {
-    const next = !sfxMuted
-    setSfxMuted(next)
-    setSfxLocal(next)
-    if (!next) playClick()
+    const n = !sfxMuted
+    setSfxMuted(n)
+    setSfxLocal(n)
+    if (!n) playClick()
   }
 
   return (
     <div
-      className="music-ctl"
-      style={{
-        position: 'fixed',
-        top: 14,
-        right: 14,
-        zIndex: 9100,
-        background: 'rgba(255, 245, 250, 0.85)',
-        border: '3px solid var(--ink)',
-        padding: '6px 10px',
-        boxShadow: '3px 3px 0 var(--ink)',
-      }}
-      title={missing ? 'Drop blessed-spirits.mp3 into public/audio/ to enable music' : ''}
+      className="music-ctl music-ctl--hud"
+      title={!hasTracks ? 'Drop any MP3 into public/audio/ to enable music' : current?.name || ''}
     >
-      <audio ref={audioRef} src={MUSIC_SRC} loop preload="auto" />
-      <button onClick={toggle} disabled={missing} title={playing ? 'Pause music' : 'Play music'}>
-        {missing ? '♪ ?' : playing ? '♪ Pause' : '♪ Play'}
+      {current && (
+        <audio
+          ref={audioRef}
+          src={current.src}
+          preload="auto"
+          onEnded={handleEnded}
+        />
+      )}
+
+      <button
+        onClick={() => {
+          playClick()
+          setExpanded((e) => !e)
+        }}
+        className="music-ctl__toggle"
+        title="Music controls"
+      >
+        ♪
       </button>
-      <input
-        type="range"
-        min={0}
-        max={1}
-        step={0.05}
-        value={volume}
-        onChange={(e) => setVolume(parseFloat(e.target.value))}
-        disabled={missing}
-        aria-label="Music volume"
-      />
-      <button onClick={toggleSfx} title={sfxMuted ? 'Unmute SFX' : 'Mute SFX'}>
-        {sfxMuted ? 'SFX Off' : 'SFX On'}
-      </button>
+
+      {expanded && (
+        <div className="music-ctl__panel">
+          <div className="music-ctl__row">
+            <button onClick={prev} disabled={!hasTracks} title="Previous">⏮</button>
+            <button onClick={togglePlay} disabled={!hasTracks}>
+              {playing ? '⏸' : '▶'}
+            </button>
+            <button onClick={next} disabled={!hasTracks} title="Next">⏭</button>
+            <button onClick={toggleShuffle} disabled={!hasTracks} className={shuffle ? 'active' : ''} title="Shuffle">
+              ⇄
+            </button>
+          </div>
+          <div className="music-ctl__title">
+            {hasTracks
+              ? `${trackIdx + 1}/${tracks.length} · ${shortName(current.name)}`
+              : 'No music in public/audio/'}
+          </div>
+          <div className="music-ctl__row">
+            <label className="music-ctl__lbl">VOL</label>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              disabled={!hasTracks}
+              aria-label="Music volume"
+            />
+          </div>
+          <div className="music-ctl__row">
+            <button onClick={toggleSfx} className={sfxMuted ? '' : 'active'}>
+              {sfxMuted ? 'SFX Off' : 'SFX On'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

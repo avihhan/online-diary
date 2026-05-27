@@ -122,14 +122,7 @@ export default function DatesPage() {
         Anniversaries, milestones, little reminders.
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 14,
-          marginBottom: 12,
-        }}
-      >
+      <div className="dates-grid">
         <RetroCalendar
           value={picked}
           onChange={(iso) => setPicked(iso)}
@@ -137,14 +130,14 @@ export default function DatesPage() {
           onSound={playClick}
         />
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
           <input
             className="retro-input"
             placeholder="Title (e.g. Our anniversary)"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={100}
-            style={{ fontSize: 18 }}
+            style={{ fontSize: 16 }}
           />
           <textarea
             className="thought-textarea"
@@ -152,7 +145,7 @@ export default function DatesPage() {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             maxLength={300}
-            style={{ minHeight: 80, fontSize: 18 }}
+            style={{ minHeight: 60, fontSize: 16 }}
           />
           {err && <div style={{ color: '#b32d57', fontFamily: 'var(--font-pixel)', fontSize: 9 }}>{err}</div>}
           <button

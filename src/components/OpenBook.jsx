@@ -62,8 +62,9 @@ export default function OpenBook({ visible }) {
       <div
         style={{
           position: 'relative',
-          width: 'min(620px, 94vw)',
-          height: 'min(820px, 84vh)',
+          width: 'min(640px, 94vw)',
+          height: 'min(820px, calc(100dvh - 150px))',
+          minHeight: 360,
           background:
             'linear-gradient(135deg, #6b3a1d 0%, #4a2410 60%, #3f2010 100%)',
           padding: 12,
